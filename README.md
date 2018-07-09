@@ -49,4 +49,4 @@ Define an architecture that structures the application as a set of loosely coupl
 Services communicate using either synchronous protocols such as HTTP/REST or asynchronous protocols such as AMQP. Services can be developed and deployed independently of one another. Each service has its own database in order to be decoupled from other services. Data consistency between services is maintained using the [Saga pattern](http://microservices.io/patterns/data/saga.html).
 
 **Example**
-[!alt text](http://microservices.io/i/Microservice_Architecture.png)
+![alt text](http://microservices.io/i/Microservice_Architecture.png)
