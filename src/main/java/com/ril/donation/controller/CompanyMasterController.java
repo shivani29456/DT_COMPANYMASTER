@@ -3,9 +3,12 @@ package com.ril.donation.controller;
 import java.util.HashMap;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.HashOperations;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -25,8 +28,18 @@ public class CompanyMasterController
 {
 	@Autowired
 	CompanyMasterRepository  companyMasterRepository;
-	
-	
+	private RedisTemplate<String, Object> redisTemplate;
+	private HashOperations<String, Integer, CompanyMaster>  hashOperations;
+	@Autowired
+	public CompanyMasterController(RedisTemplate<String, Object> redisTemplate){
+	        this.redisTemplate = redisTemplate;
+	    }
+
+	@PostConstruct
+    private void init(){
+        hashOperations = redisTemplate.opsForHash();
+    }
+
 	@RequestMapping(value="viewCompanyMasters" ,method=RequestMethod.GET)
 	   public ResponseEntity<Object> viewCompanyMasters() {
 		HashMap<String,Object> responseObject=new HashMap<String,Object>();
@@ -52,6 +65,7 @@ public class CompanyMasterController
 	{
 		HashMap<String,Object> responseObject=new HashMap<>();
 		companyMasterRepository.save(cmp);
+		hashOperations.put("COMPANYMASTER",cmp.getId(),cmp);
 		responseObject.put("message", "success");
 		return new ResponseEntity<>(responseObject, HttpStatus.OK);
 
@@ -62,6 +76,7 @@ public class CompanyMasterController
     public ResponseEntity<Object> deleteCompanyMaster(  @Valid @RequestBody CompanyMasterUtil companyMasterUtil) {
 		HashMap<String,Object> responseObject=new HashMap<>();
 		companyMasterRepository.deleteById(companyMasterUtil.getId());
+		hashOperations.delete("COMPANYMASTER", companyMasterUtil.getId());
 		responseObject.put("message", "success");
 		return new ResponseEntity<>(responseObject, HttpStatus.OK);
 	}
